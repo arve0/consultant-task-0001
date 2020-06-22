@@ -12,8 +12,8 @@ public class Transformer {
     public File output;
 
     @CommandLine.Option(names = { "--input-format" }, paramLabel = "INPUT FORMAT", description = "the input-format")
-    public String inputFormat;
+    public FileTypes inputFormat;
 
     @CommandLine.Option(names = { "--output-format" }, paramLabel = "OUTPUT FORMAT", description = "the output-format")
-    public String outputFormat;
+    public FileTypes outputFormat;
 }

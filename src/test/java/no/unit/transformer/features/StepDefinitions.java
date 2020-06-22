@@ -10,6 +10,7 @@ import picocli.CommandLine;
 
 import java.io.File;
 
+import no.unit.transformer.FileTypes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -42,22 +43,22 @@ public class StepDefinitions extends TestWiring {
     public void theTransformerHasAFlagInputFormatThatTakesASingleArgumentXmlOrJson() {
         Transformer application = new Transformer();
         new CommandLine(application).parseArgs("--input-format", "json");
-        assertEquals(application.inputFormat, "json");
+        assertEquals(application.inputFormat, FileTypes.json);
 
         application = new Transformer();
         new CommandLine(application).parseArgs("--input-format", "xml");
-        assertEquals(application.inputFormat, "xml");
+        assertEquals(application.inputFormat, FileTypes.xml);
     }
 
     @And("\"Transformer\" has a flag \"--output-format\" that takes a single argument \"xml\" or \"json\"")
     public void theTransformerHasAFlagOutputFormatThatTakesASingleArgumentXmlOrJson() {
         Transformer application = new Transformer();
         new CommandLine(application).parseArgs("--output-format", "json");
-        assertEquals(application.outputFormat, "json");
+        assertEquals(application.outputFormat, FileTypes.json);
 
         application = new Transformer();
         new CommandLine(application).parseArgs("--output-format", "xml");
-        assertEquals(application.outputFormat, "xml");
+        assertEquals(application.outputFormat, FileTypes.xml);
     }
 
     @Given("the user has a file {string}")
