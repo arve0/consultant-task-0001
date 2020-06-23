@@ -22,13 +22,12 @@ Feature:
     And the field "given" contains string value "Ull"
     And the field "family" contains string value "Carstens"
 
-  @wip
-  Scenario Outline: User transforms data from file to JSON
+  Scenario Outline: User transforms data from JSON file to JSON or XML
     Given the user has a file "input.json"
     And the data is formatted correctly
-    When the user transforms the file from <serialization-a> to <serialization-b>
+    When the user transforms the file from "<serialization-a>" to "<serialization-b>"
     And they open the file
-    Then they see that the data is transformed to <serialization-b>
+    Then they see that the data is transformed to "<serialization-b>"
     And that the elements in "users" section of the file are ordered by element "sequence"
 
     Examples:

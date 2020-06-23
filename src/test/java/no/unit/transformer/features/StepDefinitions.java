@@ -1,7 +1,9 @@
 package no.unit.transformer.features;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -9,7 +11,10 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.messages.internal.com.google.common.base.CaseFormat;
 import no.unit.transformer.FileTypes;
+import no.unit.transformer.InputPerson;
 import no.unit.transformer.Transformer;
+import no.unit.transformer.User;
+import no.unit.transformer.Users;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -29,6 +34,8 @@ public class StepDefinitions extends TestWiring {
     private Path inputFile;
     private Path outputFile;
     private JsonNode objectUnderAssertion;
+    private String outputContent;
+    private Users deserializedUsers;
 
     @Given("^the user has an application \"Transformer\" that has a command line interface$")
     public void theUserHasAnApplicationThatHasACommandLineInterface() {
@@ -60,20 +67,23 @@ public class StepDefinitions extends TestWiring {
 
     @Given("the user has a file {string}")
     public void theUserHasAFile(String filename) throws URISyntaxException {
-        Path actual = getFileFromResources(filename);
-        assertTrue(Files.exists(actual));
+        inputFile = getFileFromResources(filename);
+        assertTrue(Files.exists(inputFile));
     }
 
     @Given("the user has an input file that contains an array that contains a single object")
     public void theUserHasAnInputFileThatContainsAnArrayThatContainsASingleObject() throws URISyntaxException, IOException {
         inputFile = getFileFromResources(SINGLE_OBJECT_JSON);
-        objectUnderAssertion = readObjectFromFile(inputFile);
+        objectUnderAssertion = getOnlyObjectInArray(readObjectFromFile(inputFile));
     }
 
     private JsonNode readObjectFromFile(Path file) throws IOException {
         assertTrue(Files.exists(file));
         String content = Files.readString(file);
-        JsonNode array = new ObjectMapper().readValue(content, JsonNode.class);
+        return new ObjectMapper().readValue(content, JsonNode.class);
+    }
+
+    private JsonNode getOnlyObjectInArray(JsonNode array) {
         assertTrue(array.isArray());
         assertEquals(1, array.size());
         return array.get(0);
@@ -94,7 +104,12 @@ public class StepDefinitions extends TestWiring {
     @When("the user transforms the data")
     public void theUserTransformsTheData() throws IOException {
         outputFile = getTempFileWithoutCreatingEmptyFile();
-        application.parseArgs("--input", inputFile.toString(), "--output", outputFile.toString());
+        application.parseArgs(
+                "--input", inputFile.toString(),
+                "--output", outputFile.toString(),
+                "--input-format", "json",
+                "--output-format", "json"
+        );
         transformer.transform();
     }
 
@@ -105,7 +120,7 @@ public class StepDefinitions extends TestWiring {
 
     @Then("the user sees that the output file contains an array that contains a single object")
     public void theUserSeesThatTheOutputFileContainsAnArrayThatContainsASingleObject() throws IOException {
-        objectUnderAssertion = readObjectFromFile(outputFile);
+        objectUnderAssertion = getOnlyObjectInArray(readObjectFromFile(outputFile));
     }
 
     @And("the object has a field {string} with an integer value {int}")
@@ -138,29 +153,49 @@ public class StepDefinitions extends TestWiring {
     }
 
     @And("the data is formatted correctly")
-    public void theDataIsFormattedCorrectly() {
-        throw new PendingException();
+    public void theDataIsFormattedCorrectly() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readValue(Files.readString(inputFile), JsonNode.class);
+        objectMapper.treeToValue(jsonNode.get("users"), InputPerson[].class);
     }
 
-    @When("the user transforms the file from (.*) to (.*)")
-    public void theUserTransformsTheFileFromSerializationAToSerializationB(String serializationA,
-                                                                           String serializatiionB) {
-        throw new PendingException();
+    @When("the user transforms the file from {string} to {string}")
+    public void theUserTransformsTheFileFromSerializationAToSerializationB(String inputSerialization,
+                                                                           String outputSerialization) throws IOException {
+        outputFile = getTempFileWithoutCreatingEmptyFile();
+        application.parseArgs(
+                "--input", inputFile.toString(),
+                "--output", outputFile.toString(),
+                "--input-format", inputSerialization,
+                "--output-format", outputSerialization
+        );
+        transformer.transform();
     }
 
     @And("they open the file")
-    public void theyOpenTheFile() {
-        throw new PendingException();
+    public void theyOpenTheFile() throws IOException {
+        outputContent = Files.readString(outputFile);
     }
 
-    @Then("they see that the data is transformed to (.*)")
-    public void theySeeThatTheDataIsTransformedToSerializationB(String serialization) {
-        throw new PendingException();
+    @Then("they see that the data is transformed to {string}")
+    public void theySeeThatTheDataIsTransformedToSerialization(String serialization) throws JsonProcessingException {
+        String expected = serialization.equals("xml")
+            ? "<users><user>"
+            : "{\"users\":[";
+        assertEquals(expected, outputContent.substring(0, expected.length()));
+
+        deserializedUsers = serialization.equals("xml")
+                ? new XmlMapper().readValue(outputContent, Users.class)
+                : new ObjectMapper().readValue(outputContent, Users.class);
     }
 
     @And("that the elements in \"users\" section of the file are ordered by element \"sequence\"")
     public void thatTheElementsInSectionOfTheFileAreOrderedByElement() {
-        throw new PendingException();
+        Integer prev = Integer.MIN_VALUE;
+        for (User user : deserializedUsers) {
+            assertTrue(user.id > prev);
+            prev = user.id;
+        }
     }
 
     @Given("the user has a (.*) in (.*)")
