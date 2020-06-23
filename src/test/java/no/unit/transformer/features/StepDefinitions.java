@@ -17,48 +17,35 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class StepDefinitions extends TestWiring {
 
     public static final String SINGLE_OBJECT_JSON = "single_object.json";
-    public static final String OUTPUT_JSON = "output.json";
+
+    private Transformer transformer;
+    private CommandLine application;
 
     @Given("^the user has an application \"Transformer\" that has a command line interface$")
     public void theUserHasAnApplicationThatHasACommandLineInterface() {
-        new Transformer();
+        transformer = new Transformer();
+        application = new CommandLine(transformer);
     }
 
-    @And("\"Transformer\" has a flag \"--input\" that takes a single argument that is a filename")
-    public void hasAFlagInputThatTakesASingleArgumentThatIsAFilename() {
-        Transformer application = new Transformer();
-        new CommandLine(application).parseArgs("--input", SINGLE_OBJECT_JSON);
-
-        assertEquals(application.input, new File(SINGLE_OBJECT_JSON));
+    @And("\"Transformer\" has a flag {string} that takes a single argument that is a filename")
+    public void hasAFlagInputThatTakesASingleArgumentThatIsAFilename(String flag) throws NoSuchFieldException {
+        assertTrue(applicationHasFlagAsOption(flag));
+        assertEquals(File.class, getTransformerFlagType(flag));
     }
 
-    @And("\"Transformer\" has a flag \"--output\" that takes a single argument that is a filename")
-    public void hasAFlagOutputThatTakesASingleArgumentThatIsAFilename() {
-        Transformer application = new Transformer();
-        new CommandLine(application).parseArgs("--output", OUTPUT_JSON);
-        assertEquals(application.output, new File(OUTPUT_JSON));
+    private boolean applicationHasFlagAsOption(String flag) {
+        return application.getCommandSpec().findOption(flag).isOption();
     }
 
-    @And("\"Transformer\" has a flag \"--input-format\" that takes a single argument \"xml\" or \"json\"")
-    public void theTransformerHasAFlagInputFormatThatTakesASingleArgumentXmlOrJson() {
-        Transformer application = new Transformer();
-        new CommandLine(application).parseArgs("--input-format", "json");
-        assertEquals(application.inputFormat, FileTypes.json);
-
-        application = new Transformer();
-        new CommandLine(application).parseArgs("--input-format", "xml");
-        assertEquals(application.inputFormat, FileTypes.xml);
+    private Class<?> getTransformerFlagType(String flag) throws NoSuchFieldException {
+        assertTrue(flag.startsWith("--"));
+        return transformer.getClass().getField(flag.substring(2)).getType();
     }
 
-    @And("\"Transformer\" has a flag \"--output-format\" that takes a single argument \"xml\" or \"json\"")
-    public void theTransformerHasAFlagOutputFormatThatTakesASingleArgumentXmlOrJson() {
-        Transformer application = new Transformer();
-        new CommandLine(application).parseArgs("--output-format", "json");
-        assertEquals(application.outputFormat, FileTypes.json);
-
-        application = new Transformer();
-        new CommandLine(application).parseArgs("--output-format", "xml");
-        assertEquals(application.outputFormat, FileTypes.xml);
+    @And("\"Transformer\" has a flag {string} that takes a single argument \"xml\" or \"json\"")
+    public void theTransformerHasAFlagInputFormatThatTakesASingleArgumentXmlOrJson(String flag) throws NoSuchFieldException {
+        assertTrue(applicationHasFlagAsOption(flag));
+        assertEquals(FileTypes.class, getTransformerFlagType(flag));
     }
 
     @Given("the user has a file {string}")
