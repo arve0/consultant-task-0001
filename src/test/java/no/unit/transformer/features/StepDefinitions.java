@@ -5,6 +5,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.cucumber.messages.internal.com.google.common.base.CaseFormat;
 import no.unit.transformer.Transformer;
 import picocli.CommandLine;
 
@@ -39,7 +40,8 @@ public class StepDefinitions extends TestWiring {
 
     private Class<?> getTransformerFlagType(String flag) throws NoSuchFieldException {
         assertTrue(flag.startsWith("--"));
-        return transformer.getClass().getField(flag.substring(2)).getType();
+        String fieldName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, flag.substring(2));
+        return transformer.getClass().getField(fieldName).getType();
     }
 
     @And("\"Transformer\" has a flag {string} that takes a single argument \"xml\" or \"json\"")
