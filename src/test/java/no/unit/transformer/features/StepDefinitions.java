@@ -1,17 +1,22 @@
 package no.unit.transformer.features;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.messages.internal.com.google.common.base.CaseFormat;
+import no.unit.transformer.FileTypes;
 import no.unit.transformer.Transformer;
 import picocli.CommandLine;
 
-import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import no.unit.transformer.FileTypes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,6 +26,9 @@ public class StepDefinitions extends TestWiring {
 
     private Transformer transformer;
     private CommandLine application;
+    private Path inputFile;
+    private Path outputFile;
+    private JsonNode objectUnderAssertion;
 
     @Given("^the user has an application \"Transformer\" that has a command line interface$")
     public void theUserHasAnApplicationThatHasACommandLineInterface() {
@@ -31,7 +39,7 @@ public class StepDefinitions extends TestWiring {
     @And("\"Transformer\" has a flag {string} that takes a single argument that is a filename")
     public void hasAFlagInputThatTakesASingleArgumentThatIsAFilename(String flag) throws NoSuchFieldException {
         assertTrue(applicationHasFlagAsOption(flag));
-        assertEquals(File.class, getTransformerFlagType(flag));
+        assertEquals(Path.class, getTransformerFlagType(flag));
     }
 
     private boolean applicationHasFlagAsOption(String flag) {
@@ -51,50 +59,82 @@ public class StepDefinitions extends TestWiring {
     }
 
     @Given("the user has a file {string}")
-    public void theUserHasAFile(String filename) {
-        File actual = getFileFromResources(filename);
-        assertTrue(actual.exists());
+    public void theUserHasAFile(String filename) throws URISyntaxException {
+        Path actual = getFileFromResources(filename);
+        assertTrue(Files.exists(actual));
     }
 
     @Given("the user has an input file that contains an array that contains a single object")
-    public void theUserHasAnInputFileThatContainsAnArrayThatContainsASingleObject() {
-        File actual = getFileFromResources(SINGLE_OBJECT_JSON);
-        assertTrue(actual.exists());
+    public void theUserHasAnInputFileThatContainsAnArrayThatContainsASingleObject() throws URISyntaxException, IOException {
+        inputFile = getFileFromResources(SINGLE_OBJECT_JSON);
+        objectUnderAssertion = readObjectFromFile(inputFile);
+    }
+
+    private JsonNode readObjectFromFile(Path file) throws IOException {
+        assertTrue(Files.exists(file));
+        String content = Files.readString(file);
+        JsonNode array = new ObjectMapper().readValue(content, JsonNode.class);
+        assertTrue(array.isArray());
+        assertEquals(1, array.size());
+        return array.get(0);
     }
 
     @And("the object has field {string} with string value {string}")
     public void theObjectHasFieldWithStringValue(String field, String value) {
-        throw new PendingException();
+        assertEquals(value, getString(objectUnderAssertion, field));
+    }
+
+    private Object getString(JsonNode object, String field) {
+        assertTrue(object.has(field));
+        JsonNode value = object.get(field);
+        assertTrue(value.isTextual());
+        return value.asText();
     }
 
     @When("the user transforms the data")
-    public void theUserTransformsTheData() {
-        throw new PendingException();
+    public void theUserTransformsTheData() throws IOException {
+        outputFile = getTempFileWithoutCreatingEmptyFile();
+        application.parseArgs("--input", inputFile.toString(), "--output", outputFile.toString());
+        transformer.transform();
+    }
+
+    private Path getTempFileWithoutCreatingEmptyFile() throws IOException {
+        Path outputDirectory = Files.createTempDirectory("transformer-output");
+        return outputDirectory.resolve("output.json");
     }
 
     @Then("the user sees that the output file contains an array that contains a single object")
-    public void theUserSeesThatTheOutputFileContainsAnArrayThatContainsASingleObject() {
-        throw new PendingException();
+    public void theUserSeesThatTheOutputFileContainsAnArrayThatContainsASingleObject() throws IOException {
+        objectUnderAssertion = readObjectFromFile(outputFile);
     }
 
-    @And("the object has a field {string} with an integer value {string}")
-    public void theObjectHasAFieldWithAnIntegerValue(String field, String integer) {
-        throw new PendingException();
+    @And("the object has a field {string} with an integer value {int}")
+    public void theObjectHasAFieldWithAnIntegerValue(String field, int value) {
+        assertEquals(value, getInt(objectUnderAssertion, field));
+    }
+
+    private int getInt(JsonNode object, String field) {
+        assertTrue(object.has(field));
+        JsonNode value = object.get(field);
+        assertTrue(value.isInt());
+        return value.asInt();
     }
 
     @And("the object has a field {string}")
     public void theObjectHasAField(String field) {
-        throw new PendingException();
+        assertTrue(objectUnderAssertion.has(field));
     }
 
     @And("the field \"identity\" contains an object with the fields \"given\" and \"family\"")
     public void theFieldContainsAnObjectWithTheFieldsAnd() {
-        throw new PendingException();
+        objectUnderAssertion = objectUnderAssertion.get("identity");
+        assertTrue(objectUnderAssertion.has("given"));
+        assertTrue(objectUnderAssertion.has("family"));
     }
 
     @And("the field {string} contains string value {string}")
     public void theFieldContainsStringValue(String field, String value) {
-        throw new PendingException();
+        assertEquals(value, getString(objectUnderAssertion, field));
     }
 
     @And("the data is formatted correctly")

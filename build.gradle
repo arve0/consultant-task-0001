@@ -19,10 +19,12 @@ repositories {
 def cucumberVersion = '6.0.0'
 def junit5Version = '5.6.2'
 def picoliVersion = '4.3.2'
+def jacksonVersion = '2.11.0'
 
 dependencies {
     compile group: 'info.picocli', name: 'picocli', version: picoliVersion
     compile group: 'info.picocli', name: 'picocli-codegen', version: picoliVersion
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit5Version
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit5Version

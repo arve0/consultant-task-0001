@@ -8,7 +8,6 @@ Feature:
     And "Transformer" has a flag "--input-format" that takes a single argument "xml" or "json"
     And "Transformer" has a flag "--output-format" that takes a single argument "xml" or "json"
 
-  @wip
   Scenario: User transforms a single object from format A to format B
     Given the user has an input file that contains an array that contains a single object
     And the object has field "name" with string value "Carstens, Ull"
@@ -16,12 +15,12 @@ Feature:
     And the object has field "role" with string value "Executive"
     When the user transforms the data
     Then the user sees that the output file contains an array that contains a single object
-    And the object has a field "id" with an integer value "1"
+    And the object has a field "id" with an integer value 1
+    And the object has field "role" with string value "Executive"
     And the object has a field "identity"
     And the field "identity" contains an object with the fields "given" and "family"
     And the field "given" contains string value "Ull"
     And the field "family" contains string value "Carstens"
-    And the object has field "role" with string value "Executive"
 
   @wip
   Scenario Outline: User transforms data from file to JSON
