@@ -101,7 +101,7 @@ public class Transformer implements Callable<Integer> {
     }
 
     public Optional<String> getErrorMessage() {
-        if (errorMessage.equals("")) {
+        if ("".equals(errorMessage)) {
             return Optional.empty();
         } else {
             return Optional.of(errorMessage);
