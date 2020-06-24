@@ -9,7 +9,6 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.cucumber.messages.internal.com.google.common.base.CaseFormat;
 import no.unit.transformer.FileTypes;
 import no.unit.transformer.InputUsers;
 import no.unit.transformer.Transformer;
@@ -48,24 +47,15 @@ public class StepDefinitions extends TestWiring {
 
     @And("\"Transformer\" has a flag {string} that takes a single argument that is a filename")
     public void hasAFlagInputThatTakesASingleArgumentThatIsAFilename(String flag) throws NoSuchFieldException {
-        assertTrue(applicationHasFlagAsOption(flag));
-        assertEquals(Path.class, getTransformerFlagType(flag));
-    }
-
-    private boolean applicationHasFlagAsOption(String flag) {
-        return application.getCommandSpec().findOption(flag).isOption();
-    }
-
-    private Class<?> getTransformerFlagType(String flag) throws NoSuchFieldException {
-        assertTrue(flag.startsWith("--"));
-        String fieldName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, flag.substring(2));
-        return transformer.getClass().getField(fieldName).getType();
+        assertTrue(hasFlagAsOption(application, flag));
+        assertEquals(Path.class, getFlagType(transformer, flag));
     }
 
     @And("\"Transformer\" has a flag {string} that takes a single argument \"xml\" or \"json\"")
-    public void theTransformerHasAFlagInputFormatThatTakesASingleArgumentXmlOrJson(String flag) throws NoSuchFieldException {
-        assertTrue(applicationHasFlagAsOption(flag));
-        assertEquals(FileTypes.class, getTransformerFlagType(flag));
+    public void theTransformerHasAFlagInputFormatThatTakesASingleArgumentXmlOrJson(String flag)
+            throws NoSuchFieldException {
+        assertTrue(hasFlagAsOption(application, flag));
+        assertEquals(FileTypes.class, getFlagType(transformer, flag));
     }
 
     @Given("the user has a file {string} in {string}")
@@ -75,33 +65,15 @@ public class StepDefinitions extends TestWiring {
     }
 
     @Given("the user has an input file that contains an array that contains a single object")
-    public void theUserHasAnInputFileThatContainsAnArrayThatContainsASingleObject() throws URISyntaxException, IOException {
+    public void theUserHasAnInputFileThatContainsAnArrayThatContainsASingleObject()
+            throws URISyntaxException, IOException {
         inputFile = getFileFromResources(SINGLE_OBJECT_JSON);
         objectUnderAssertion = getOnlyObjectInArray(readObjectFromFile(inputFile));
-    }
-
-    private JsonNode readObjectFromFile(Path file) throws IOException {
-        assertTrue(Files.exists(file));
-        String content = Files.readString(file);
-        return new ObjectMapper().readValue(content, JsonNode.class);
-    }
-
-    private JsonNode getOnlyObjectInArray(JsonNode array) {
-        assertTrue(array.isArray());
-        assertEquals(1, array.size());
-        return array.get(0);
     }
 
     @And("the object has field {string} with string value {string}")
     public void theObjectHasFieldWithStringValue(String field, String value) {
         assertEquals(value, getString(objectUnderAssertion, field));
-    }
-
-    private Object getString(JsonNode object, String field) {
-        assertTrue(object.has(field));
-        JsonNode value = object.get(field);
-        assertTrue(value.isTextual());
-        return value.asText();
     }
 
     @When("the user transforms the data")
@@ -116,11 +88,6 @@ public class StepDefinitions extends TestWiring {
         transformer.transform();
     }
 
-    private Path getTempFileWithoutCreatingEmptyFile() throws IOException {
-        Path outputDirectory = Files.createTempDirectory("transformer-output");
-        return outputDirectory.resolve("output.json");
-    }
-
     @Then("the user sees that the output file contains an array that contains a single object")
     public void theUserSeesThatTheOutputFileContainsAnArrayThatContainsASingleObject() throws IOException {
         objectUnderAssertion = getOnlyObjectInArray(readObjectFromFile(outputFile));
@@ -129,13 +96,6 @@ public class StepDefinitions extends TestWiring {
     @And("the object has a field {string} with an integer value {int}")
     public void theObjectHasAFieldWithAnIntegerValue(String field, int value) {
         assertEquals(value, getInt(objectUnderAssertion, field));
-    }
-
-    private int getInt(JsonNode object, String field) {
-        assertTrue(object.has(field));
-        JsonNode value = object.get(field);
-        assertTrue(value.isInt());
-        return value.asInt();
     }
 
     @And("the object has a field {string}")
@@ -164,8 +124,9 @@ public class StepDefinitions extends TestWiring {
     }
 
     @When("the user transforms the file from {string} to {string}")
-    public void theUserTransformsTheFileFromSerializationAToSerializationB(String inputSerialization,
-                                                                           String outputSerialization) throws IOException {
+    public void theUserTransformsTheFileFromSerializationAToSerializationB(
+            String inputSerialization,
+            String outputSerialization) throws IOException {
         outputFile = getTempFileWithoutCreatingEmptyFile();
         application.parseArgs(
                 "--input", inputFile.toString(),
@@ -184,8 +145,8 @@ public class StepDefinitions extends TestWiring {
     @Then("they see that the data is transformed to {string}")
     public void theySeeThatTheDataIsTransformedToSerialization(String serialization) throws JsonProcessingException {
         String expected = serialization.equals("xml")
-            ? "<users><user>"
-            : "{\"users\":[";
+                ? "<users><user>"
+                : "{\"users\":[";
         assertEquals(expected, outputContent.substring(0, expected.length()));
 
         deserializedUsers = serialization.equals("xml")
