@@ -56,6 +56,12 @@ class TransformerTest extends TestWiring {
         testConvertion(XML_INPUT, FileTypes.xml);
     }
 
+    @DisplayName("Converts XML to unspecified output format")
+    @Test
+    void convertsXmlToUnspecifiedOutputFormat() throws URISyntaxException, IOException {
+        testConvertion(XML_INPUT, null);
+    }
+
     @DisplayName("Should give error on bad input")
     @Test
     public void shouldGiveErrorOnBadInput() throws Exception {
