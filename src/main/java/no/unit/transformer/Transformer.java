@@ -38,7 +38,8 @@ public class Transformer implements Callable<Integer> {
     }
 
     @Override
-    public Integer call() {
+    public Integer call() throws IOException {
+        BufferedWriter outputBuffer = null;
         try {
             List<User> users = getInputUsers()
                     .stream()
@@ -46,7 +47,7 @@ public class Transformer implements Callable<Integer> {
                     .sorted()
                     .collect(Collectors.toList());
 
-            BufferedWriter outputBuffer = Files.newBufferedWriter(output);
+            outputBuffer = Files.newBufferedWriter(output);
 
             if (outputFormat == null) {
                 outputFormat = inputFormat;
@@ -68,6 +69,10 @@ public class Transformer implements Callable<Integer> {
         } catch (Exception error) {
             errorMessage = "Unexpected error: " + error.getMessage();
             return 2;
+        } finally {
+            if (outputBuffer != null) {
+                outputBuffer.close();
+            }
         }
     }
 
