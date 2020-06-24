@@ -37,13 +37,12 @@ Feature:
       | input.xml  | xml             | json            |
       | input.json | json            | xml             |
 
-  @wip
   Scenario Outline: User transforms file without specifying an output format
-    Given the user has a <file> in <serialization>
+    Given the user has a file "<file>" in "<serialization>"
     And the data is formatted correctly
     When they transform the file without specifying the output format flag
-    And they open the transformed file
-    Then the file is transformed to serialization
+    And they open the file
+    Then the file is transformed with same serialization
     And that the elements in "users" section of the file are ordered by element "sequence"
 
     Examples:

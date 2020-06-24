@@ -202,18 +202,19 @@ public class StepDefinitions extends TestWiring {
     }
 
     @When("they transform the file without specifying the output format flag")
-    public void theyTransformTheFileWithoutSpecifyingTheOutputFormatFlag() {
-        throw new PendingException();
+    public void theyTransformTheFileWithoutSpecifyingTheOutputFormatFlag() throws IOException {
+        outputFile = getTempFileWithoutCreatingEmptyFile();
+        application.parseArgs(
+                "--input", inputFile.toString(),
+                "--output", outputFile.toString(),
+                "--input-format", inputSerialization
+        );
+        transformer.transform();
     }
 
-    @And("they open the transformed file")
-    public void theyOpenTheTransformedFile() {
-        throw new PendingException();
-    }
-
-    @Then("the file is transformed to serialization")
-    public void theFileIsTransformedToSerialization() {
-        throw new PendingException();
+    @Then("the file is transformed with same serialization")
+    public void theFileIsTransformedWithSameSerialization() throws JsonProcessingException {
+        theySeeThatTheDataIsTransformedToSerialization(inputSerialization);
     }
 
     @And("the data is formatted badly")
