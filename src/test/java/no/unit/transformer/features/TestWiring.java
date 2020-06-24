@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestWiring {
-    protected Path getFileFromResources(String filename) throws URISyntaxException {
+    public static Path getFileFromResources(String filename) throws URISyntaxException {
         return Paths.get(ClassLoader.getSystemResource(filename).toURI());
     }
 
@@ -55,7 +55,7 @@ public class TestWiring {
         return value.asText();
     }
 
-    protected Path getTempFileWithoutCreatingEmptyFile() throws IOException {
+    public static Path getTempFileWithoutCreatingEmptyFile() throws IOException {
         Path outputDirectory = Files.createTempDirectory("transformer-output");
         return outputDirectory.resolve("output.json");
     }
