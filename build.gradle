@@ -36,6 +36,7 @@ dependencies {
 
     testImplementation group: 'io.cucumber', name: 'cucumber-java', version: cucumberVersion
     testImplementation group: 'io.cucumber', name: 'messages', version: cucumberVersion
+    testImplementation group: 'com.ginsberg', name: 'junit5-system-exit', version: '1.0.0'
 }
 
 test {

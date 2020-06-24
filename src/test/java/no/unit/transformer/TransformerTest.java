@@ -1,5 +1,6 @@
 package no.unit.transformer;
 
+import com.ginsberg.junit.exit.ExpectSystemExit;
 import no.unit.transformer.features.TestWiring;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -81,5 +82,12 @@ class TransformerTest extends TestWiring {
         assertEquals(2, exitCode);
         assertTrue(transformer.getErrorMessage().isPresent());
         assertTrue(transformer.getErrorMessage().get().contains("Unable to open file 'non_existent_file.xml'"));
+    }
+
+    @DisplayName("Exits when called from main")
+    @ExpectSystemExit
+    @Test
+    public void shouldExitWhenCalledFromMain() {
+        Transformer.main();
     }
 }
