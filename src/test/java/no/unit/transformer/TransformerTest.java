@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TransformerTest {
     public static final String SINGLE_OBJECT_JSON = "single_object.json";
+    public static final String NORMAL_JSON = "input.json";
+    public static final String NORMAL_XML = "input.xml";
 
     @DisplayName("Transformer exists")
     @Test
@@ -34,4 +36,17 @@ class TransformerTest {
         assertTrue(Files.exists(transformer.output));
     }
 
+    @DisplayName("Converts JSON to JSON")
+    @Test
+    void transformsJsonToJson() throws URISyntaxException, IOException {
+        Transformer transformer = new Transformer();
+        transformer.input = TestWiring.getFileFromResources(NORMAL_JSON);
+        transformer.output = TestWiring.getTempFileWithoutCreatingEmptyFile();
+        transformer.inputFormat = FileTypes.json;
+        transformer.outputFormat = FileTypes.json;
+
+        int exitCode = transformer.call();
+        assertEquals(0, exitCode);
+        assertTrue(Files.exists(transformer.output));
+    }
 }
