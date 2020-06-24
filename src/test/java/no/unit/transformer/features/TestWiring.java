@@ -3,6 +3,8 @@ package no.unit.transformer.features;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.messages.internal.com.google.common.base.CaseFormat;
+import no.unit.transformer.FileTypes;
+import no.unit.transformer.Transformer;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -58,5 +60,14 @@ public class TestWiring {
     public static Path getTempFileWithoutCreatingEmptyFile() throws IOException {
         Path outputDirectory = Files.createTempDirectory("transformer-output");
         return outputDirectory.resolve("output.json");
+    }
+
+    public Transformer getTransformer(String inputFile, FileTypes outputType) throws URISyntaxException, IOException {
+        Transformer transformer = new Transformer();
+        transformer.input = TestWiring.getFileFromResources(inputFile);
+        transformer.output = TestWiring.getTempFileWithoutCreatingEmptyFile();
+        transformer.inputFormat = FileTypes.json;
+        transformer.outputFormat = outputType;
+        return transformer;
     }
 }
