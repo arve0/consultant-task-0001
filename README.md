@@ -1,5 +1,31 @@
 # Transformer
 
+## Notes to reviewer
+I'm aware the solution have som flaws and that the project does not build
+due to the coverage check. Gherkin, Cucumber and Picocli was new to me,
+so I started experimenting first. Found the other checks after making
+the cucumber specification work.
+
+Regarding coverage, I tried adding `excludes` to the jacoto-configuration, 
+but that did not work. Jackson requires the uncovered methods to deserialize 
+the objects, and therefore not used in tests. The coverage can
+be passed by lowering threshold, or finding out how to make `excludes` work.
+
+I've noted flaws, ideas and thoughts underway, and would gladly discuss them:
+
+- Streaming
+- State and mutation in `StepDefinitions`
+- JSON input supports two different formats, top-level array or object.
+- Strong coupling for serialization library Jackson (also used in tests)
+- Gherkin background assertions seemed strange
+- Project setup.
+  - In a normal project setting, project setup would be done proper when onboarding. 
+  - I should have added a git pre-commit hook to avoid cleaning up after experimentation. 
+    Though, a bit hard with the clean sheet and "everything" failing.
+  - Took a while to get cucumber-reporting in my editor.
+- The commit log have scattered timestamps, as I've been working on other
+  tasks in between.
+
 ## Run
 ```bash
 ./gradlew run
