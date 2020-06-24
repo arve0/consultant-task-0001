@@ -80,6 +80,9 @@ public class Transformer {
         return Arrays.asList(objectMapper.treeToValue(objectWithUsers, InputUser[].class));
     }
 
+    /**
+     * Gets error message, if there is any.
+     */
     public Optional<String> getErrorMessage() {
         if (errorMessage.equals("")) {
             return Optional.empty();

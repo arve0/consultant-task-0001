@@ -12,7 +12,8 @@ public class InputUsers {
     @JacksonXmlProperty(localName = "user")
     public List<InputUser> users;
 
-    public InputUsers() {}
+    public InputUsers() {
+    }
 
     public InputUsers(List<InputUser> users) {
         this.users = users;

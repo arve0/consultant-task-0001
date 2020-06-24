@@ -8,5 +8,6 @@ public class InputUser {
     public String sequence;
     public String role;
 
-    public InputUser() {}
+    public InputUser() {
+    }
 }

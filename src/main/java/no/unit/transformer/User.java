@@ -5,8 +5,12 @@ public class User implements Comparable<User> {
     public Identity identity;
     public String role;
 
-    public User() {}
+    public User() {
+    }
 
+    /**
+     * Transform InputUser to a User.
+     */
     public User(InputUser user) {
         id = Integer.parseInt(user.sequence);
         identity = new Identity(user.name);
@@ -25,8 +29,14 @@ public class User implements Comparable<User> {
         public String given;
         public String family;
 
-        public Identity() {}
+        public Identity() {
+        }
 
+        /**
+         * <p>Splits name into 'given' and 'family' name.</p>
+         *
+         * <p>Example: 'Olsen, Jon' → family: 'Olsen', given: 'Jon'</p>
+         */
         public Identity(String name) {
             String[] names = name.split(", ");
             assert names.length == 2;

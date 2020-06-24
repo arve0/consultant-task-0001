@@ -15,7 +15,8 @@ public class Users implements Iterable<User> {
     @JacksonXmlProperty(localName = "user")
     public List<User> users;
 
-    public Users() {}
+    public Users() {
+    }
 
     public Users(List<User> users) {
         this.users = users;
