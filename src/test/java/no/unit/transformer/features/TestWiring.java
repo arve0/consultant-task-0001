@@ -17,8 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestWiring {
-    public static Path getFileFromResources(String filename) throws URISyntaxException {
-        return Paths.get(ClassLoader.getSystemResource(filename).toURI());
+    public static Path getFileFromResources(String filename){
+        try {
+            return Paths.get(ClassLoader.getSystemResource(filename).toURI());
+        } catch (Exception error) {
+            return Paths.get(filename);
+        }
     }
 
     protected boolean hasFlagAsOption(CommandLine application, String flag) {

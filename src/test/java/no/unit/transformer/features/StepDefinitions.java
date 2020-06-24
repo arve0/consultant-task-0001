@@ -59,15 +59,16 @@ public class StepDefinitions extends TestWiring {
     }
 
     @Given("the user has a file {string} in {string}")
-    public void theUserHasAFileInSerialization(String filename, String serialization) throws URISyntaxException {
+    public void theUserHasAFileInSerialization(String filename, String serialization) {
         inputFile = getFileFromResources(filename);
+        assertTrue(Files.exists(inputFile));
         inputSerialization = serialization;
     }
 
     @Given("the user has an input file that contains an array that contains a single object")
-    public void theUserHasAnInputFileThatContainsAnArrayThatContainsASingleObject()
-            throws URISyntaxException, IOException {
+    public void theUserHasAnInputFileThatContainsAnArrayThatContainsASingleObject() throws IOException {
         inputFile = getFileFromResources(SINGLE_OBJECT_JSON);
+        assertTrue(Files.exists(inputFile));
         objectUnderAssertion = getOnlyObjectInArray(readObjectFromFile(inputFile));
     }
 

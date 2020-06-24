@@ -65,4 +65,15 @@ class TransformerTest extends TestWiring {
         assertEquals(1, exitCode);
         assertTrue(transformer.getErrorMessage().isPresent());
     }
+
+    @DisplayName("Should give error when input file does not exist")
+    @Test
+    public void shouldGiveErrorWhenInputFileDoesNotExist() throws Exception {
+        Transformer transformer = getTransformer("non_existent_file.xml", FileTypes.xml);
+
+        int exitCode = transformer.call();
+        assertEquals(2, exitCode);
+        assertTrue(transformer.getErrorMessage().isPresent());
+        assertTrue(transformer.getErrorMessage().get().contains("Unable to open file 'non_existent_file.xml'"));
+    }
 }

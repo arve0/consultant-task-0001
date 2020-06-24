@@ -71,8 +71,13 @@ public class Transformer implements Callable<Integer> {
         }
     }
 
-    private List<InputUser> getInputUsers() throws IOException {
-        String content = Files.readString(input);
+    private List<InputUser> getInputUsers() throws Exception {
+        String content;
+        try {
+            content = Files.readString(input);
+        } catch (IOException error) {
+            throw new Exception(String.format("Unable to open file '%s'", input), error);
+        }
 
         if (inputFormat.equals(FileTypes.xml)) {
             InputUsers inputUsers = new XmlMapper().readValue(content, InputUsers.class);
