@@ -1,24 +1,24 @@
 package no.unit.transformer;
 
-public class User implements Comparable<User> {
+public class OutputUser implements Comparable<OutputUser> {
     public Integer id;
     public Identity identity;
     public String role;
 
-    public User() {
+    public OutputUser() {
     }
 
     /**
      * Transform InputUser to a User.
      */
-    public User(InputUser user) {
+    public OutputUser(InputUser user) {
         id = Integer.parseInt(user.sequence);
         identity = new Identity(user.name);
         role = user.role;
     }
 
     @Override
-    public int compareTo(User other) {
+    public int compareTo(OutputUser other) {
         if (id == null || other.id == null) {
             return 0;
         }

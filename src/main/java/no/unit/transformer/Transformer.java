@@ -41,9 +41,9 @@ public class Transformer implements Callable<Integer> {
     public Integer call() throws IOException {
         BufferedWriter outputBuffer = null;
         try {
-            List<User> users = getInputUsers()
+            List<OutputUser> users = getInputUsers()
                     .stream()
-                    .map(User::new)
+                    .map(OutputUser::new)
                     .sorted()
                     .collect(Collectors.toList());
 
@@ -58,7 +58,7 @@ public class Transformer implements Callable<Integer> {
                     : new ObjectMapper();
 
             if (inputDoesHaveRootObject) {
-                outputMapper.writeValue(outputBuffer, new Users(users));
+                outputMapper.writeValue(outputBuffer, new OutputUsers(users));
             } else {
                 outputMapper.writeValue(outputBuffer, users);
             }

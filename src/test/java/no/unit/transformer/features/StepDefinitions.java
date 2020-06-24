@@ -12,12 +12,11 @@ import io.cucumber.java.en.When;
 import no.unit.transformer.FileTypes;
 import no.unit.transformer.InputUsers;
 import no.unit.transformer.Transformer;
-import no.unit.transformer.User;
-import no.unit.transformer.Users;
+import no.unit.transformer.OutputUser;
+import no.unit.transformer.OutputUsers;
 import picocli.CommandLine;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -36,7 +35,7 @@ public class StepDefinitions extends TestWiring {
     private Path outputFile;
     private JsonNode objectUnderAssertion;
     private String outputContent;
-    private Users deserializedUsers;
+    private OutputUsers deserializedUsers;
     private String inputSerialization = "json";
 
     @Given("^the user has an application \"Transformer\" that has a command line interface$")
@@ -149,14 +148,14 @@ public class StepDefinitions extends TestWiring {
         assertEquals(expected, outputContent.substring(0, expected.length()));
 
         deserializedUsers = serialization.equals("xml")
-                ? new XmlMapper().readValue(outputContent, Users.class)
-                : new ObjectMapper().readValue(outputContent, Users.class);
+                ? new XmlMapper().readValue(outputContent, OutputUsers.class)
+                : new ObjectMapper().readValue(outputContent, OutputUsers.class);
     }
 
     @And("that the elements in \"users\" section of the file are ordered by element \"sequence\"")
     public void thatTheElementsInSectionOfTheFileAreOrderedByElement() {
         Integer prev = Integer.MIN_VALUE;
-        for (User user : deserializedUsers) {
+        for (OutputUser user : deserializedUsers) {
             assertTrue(user.id > prev);
             prev = user.id;
         }

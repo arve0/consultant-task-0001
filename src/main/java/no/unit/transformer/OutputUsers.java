@@ -10,30 +10,30 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 @JacksonXmlRootElement(localName = "users")
-public class Users implements Iterable<User> {
+public class OutputUsers implements Iterable<OutputUser> {
     @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "user")
-    public List<User> users;
+    public List<OutputUser> users;
 
-    public Users() {
+    public OutputUsers() {
     }
 
-    public Users(List<User> users) {
+    public OutputUsers(List<OutputUser> users) {
         this.users = users;
     }
 
     @Override
-    public Iterator<User> iterator() {
+    public Iterator<OutputUser> iterator() {
         return users.iterator();
     }
 
     @Override
-    public void forEach(Consumer<? super User> action) {
+    public void forEach(Consumer<? super OutputUser> action) {
         users.forEach(action);
     }
 
     @Override
-    public Spliterator<User> spliterator() {
+    public Spliterator<OutputUser> spliterator() {
         return users.spliterator();
     }
 }
