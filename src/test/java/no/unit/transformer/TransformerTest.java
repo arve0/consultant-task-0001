@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TransformerTest extends TestWiring {
     public static final String SINGLE_OBJECT_JSON = "single_object.json";
-    public static final String NORMAL_JSON = "input.json";
-    public static final String NORMAL_XML = "input.xml";
+    public static final String JSON_INPUT = "input.json";
+    public static final String XML_INPUT = "input.xml";
 
     @DisplayName("Transformer exists")
     @Test
@@ -25,7 +25,11 @@ class TransformerTest extends TestWiring {
     @DisplayName("Converts JSON array")
     @Test
     void transformsJsonArray() throws URISyntaxException, IOException {
-        Transformer transformer = getTransformer(SINGLE_OBJECT_JSON, FileTypes.json);
+        testConvertion(SINGLE_OBJECT_JSON, FileTypes.json);
+    }
+
+    private void testConvertion(String from, FileTypes to) throws URISyntaxException, IOException {
+        Transformer transformer = getTransformer(from, to);
 
         int exitCode = transformer.call();
         assertEquals(0, exitCode);
@@ -35,20 +39,18 @@ class TransformerTest extends TestWiring {
     @DisplayName("Converts JSON to JSON")
     @Test
     void transformsJsonToJson() throws URISyntaxException, IOException {
-        Transformer transformer = getTransformer(NORMAL_JSON, FileTypes.json);
-
-        int exitCode = transformer.call();
-        assertEquals(0, exitCode);
-        assertTrue(Files.exists(transformer.output));
+        testConvertion(JSON_INPUT, FileTypes.json);
     }
 
     @DisplayName("Converts JSON to XML")
     @Test
     void transformsJsonToXml() throws URISyntaxException, IOException {
-        Transformer transformer = getTransformer(NORMAL_JSON, FileTypes.xml);
+        testConvertion(JSON_INPUT, FileTypes.xml);
+    }
 
-        int exitCode = transformer.call();
-        assertEquals(0, exitCode);
-        assertTrue(Files.exists(transformer.output));
+    @DisplayName("Converts XML to XML")
+    @Test
+    void transformsXmlToXml() throws URISyntaxException, IOException {
+        testConvertion(XML_INPUT, FileTypes.xml);
     }
 }

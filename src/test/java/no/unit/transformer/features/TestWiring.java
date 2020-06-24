@@ -66,7 +66,9 @@ public class TestWiring {
         Transformer transformer = new Transformer();
         transformer.input = TestWiring.getFileFromResources(inputFile);
         transformer.output = TestWiring.getTempFileWithoutCreatingEmptyFile();
-        transformer.inputFormat = FileTypes.json;
+        transformer.inputFormat = inputFile.endsWith(".xml")
+            ? FileTypes.xml
+            : FileTypes.json;
         transformer.outputFormat = outputType;
         return transformer;
     }
