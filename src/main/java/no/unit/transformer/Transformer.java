@@ -16,6 +16,8 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+
+@SuppressWarnings("PMD.DoNotCallSystemExit")
 public class Transformer implements Callable<Integer> {
     @CommandLine.Option(names = { "--input" }, paramLabel = "INPUT", description = "the input file", required = true)
     public Path input;
