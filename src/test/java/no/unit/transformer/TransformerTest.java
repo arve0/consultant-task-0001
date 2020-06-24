@@ -15,6 +15,7 @@ class TransformerTest extends TestWiring {
     public static final String SINGLE_OBJECT_JSON = "single_object.json";
     public static final String JSON_INPUT = "input.json";
     public static final String XML_INPUT = "input.xml";
+    public static final String BAD_INPUT = "badly_formatted.json";
 
     @DisplayName("Transformer exists")
     @Test
@@ -33,6 +34,7 @@ class TransformerTest extends TestWiring {
 
         int exitCode = transformer.call();
         assertEquals(0, exitCode);
+        assertTrue(transformer.getErrorMessage().isEmpty());
         assertTrue(Files.exists(transformer.output));
     }
 
@@ -52,5 +54,15 @@ class TransformerTest extends TestWiring {
     @Test
     void transformsXmlToXml() throws URISyntaxException, IOException {
         testConvertion(XML_INPUT, FileTypes.xml);
+    }
+
+    @DisplayName("Should give error on bad input")
+    @Test
+    public void shouldGiveErrorOnBadInput() throws Exception {
+        Transformer transformer = getTransformer(BAD_INPUT, FileTypes.xml);
+
+        int exitCode = transformer.call();
+        assertEquals(1, exitCode);
+        assertTrue(transformer.getErrorMessage().isPresent());
     }
 }
