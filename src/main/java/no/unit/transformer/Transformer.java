@@ -13,16 +13,17 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-public class Transformer {
-    @CommandLine.Option(names = { "--input" }, paramLabel = "INPUT", description = "the input file")
+public class Transformer implements Callable<Integer> {
+    @CommandLine.Option(names = { "--input" }, paramLabel = "INPUT", description = "the input file", required = true)
     public Path input;
 
-    @CommandLine.Option(names = { "--output" }, paramLabel = "OUTPUT", description = "the output file")
+    @CommandLine.Option(names = { "--output" }, paramLabel = "OUTPUT", description = "the output file", required = true)
     public Path output;
 
-    @CommandLine.Option(names = { "--input-format" }, paramLabel = "INPUT FORMAT", description = "the input-format")
+    @CommandLine.Option(names = { "--input-format" }, paramLabel = "INPUT FORMAT", description = "the input-format", required = true)
     public FileTypes inputFormat;
 
     @CommandLine.Option(names = { "--output-format" }, paramLabel = "OUTPUT FORMAT", description = "the output-format")
@@ -31,7 +32,13 @@ public class Transformer {
     private boolean inputDoesHaveRootObject = true;
     private String errorMessage = "";
 
-    public void transform() throws IOException {
+    public static void main(String... args) {
+        int exitCode = new CommandLine(new Transformer()).execute(args);
+        System.exit(exitCode);
+    }
+
+    @Override
+    public Integer call() {
         try {
             List<User> users = getInputUsers()
                     .stream()
@@ -54,10 +61,13 @@ public class Transformer {
             } else {
                 outputMapper.writeValue(outputBuffer, users);
             }
+            return 0;
         } catch (MismatchedInputException error) {
             errorMessage = "Unable to transform input data, unexpected format.";
+            return 1;
         } catch (Exception error) {
             errorMessage = "Unexpected error: " + error.getMessage();
+            return 2;
         }
     }
 
@@ -80,9 +90,6 @@ public class Transformer {
         return Arrays.asList(objectMapper.treeToValue(objectWithUsers, InputUser[].class));
     }
 
-    /**
-     * Gets error message, if there is any.
-     */
     public Optional<String> getErrorMessage() {
         if (errorMessage.equals("")) {
             return Optional.empty();

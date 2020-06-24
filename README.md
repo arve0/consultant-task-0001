@@ -1,5 +1,18 @@
 # Transformer
 
+## Run
+```bash
+./gradlew run
+# with arguments
+./gradlew run --args="--input=src/test/resources/input.json --input-format=json --output=out.json --output-format=json"
+# via jar
+./gradlew jar
+java -jar build/libs/consultant-task-0001.jar
+# with arguments
+java -jar build/libs/consultant-task-0001.jar \
+    --input=src/test/resources/input.json --input-format=json --output=out.json
+```
+
 ## Task
 
   1. Clone this repository to your own account

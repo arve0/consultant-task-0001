@@ -5,6 +5,7 @@ buildscript {
 }
 
 plugins {
+    id 'application'
     id 'java'
     id 'jacoco'
     id 'checkstyle'
@@ -130,3 +131,23 @@ task debugCucumber() {
 }
 
 test.dependsOn(cucumber)
+
+ext {
+    javaMainClass = 'no.unit.transformer.Transformer'
+}
+
+application {
+    mainClassName = javaMainClass
+}
+
+jar {
+    manifest {
+        attributes(
+                "Main-Class": javaMainClass
+        )
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}

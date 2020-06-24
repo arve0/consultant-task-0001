@@ -79,13 +79,12 @@ public class StepDefinitions extends TestWiring {
     @When("the user transforms the data")
     public void theUserTransformsTheData() throws IOException {
         outputFile = getTempFileWithoutCreatingEmptyFile();
-        application.parseArgs(
+        application.execute(
                 "--input", inputFile.toString(),
                 "--output", outputFile.toString(),
                 "--input-format", "json",
                 "--output-format", "json"
         );
-        transformer.transform();
     }
 
     @Then("the user sees that the output file contains an array that contains a single object")
@@ -128,13 +127,12 @@ public class StepDefinitions extends TestWiring {
             String inputSerialization,
             String outputSerialization) throws IOException {
         outputFile = getTempFileWithoutCreatingEmptyFile();
-        application.parseArgs(
+        application.execute(
                 "--input", inputFile.toString(),
                 "--output", outputFile.toString(),
                 "--input-format", inputSerialization,
                 "--output-format", outputSerialization
         );
-        transformer.transform();
     }
 
     @And("they open the file")
@@ -166,12 +164,11 @@ public class StepDefinitions extends TestWiring {
     @When("they transform the file without specifying the output format flag")
     public void theyTransformTheFileWithoutSpecifyingTheOutputFormatFlag() throws IOException {
         outputFile = getTempFileWithoutCreatingEmptyFile();
-        application.parseArgs(
+        application.execute(
                 "--input", inputFile.toString(),
                 "--output", outputFile.toString(),
                 "--input-format", inputSerialization
         );
-        transformer.transform();
     }
 
     @Then("the file is transformed with same serialization")
