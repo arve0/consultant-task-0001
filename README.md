@@ -1,7 +1,7 @@
 # Transformer
 
 ## Notes to reviewer
-I'm aware the solution have som flaws and that the project does not build
+I'm aware the solution have some flaws and that the project does not build
 due to the coverage check. Gherkin, Cucumber and Picocli was new to me,
 so I started experimenting first. Found the other checks after making
 the cucumber specification work.
@@ -25,6 +25,7 @@ I've noted flaws, ideas and thoughts underway, and would gladly discuss them:
   - Took a while to get cucumber-reporting in my editor.
 - The commit log have scattered timestamps, as I've been working on other
   tasks in between.
+- `git rebase -i --exec "./gradlew check" master`
 
 ## Run
 ```bash
