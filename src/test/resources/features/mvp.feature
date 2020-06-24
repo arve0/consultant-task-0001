@@ -22,8 +22,8 @@ Feature:
     And the field "given" contains string value "Ull"
     And the field "family" contains string value "Carstens"
 
-  Scenario Outline: User transforms data from JSON file to JSON or XML
-    Given the user has a file "input.json"
+  Scenario Outline: User transforms data from file to JSON or XML
+    Given the user has a file "<input-file>" in "<serialization-a>"
     And the data is formatted correctly
     When the user transforms the file from "<serialization-a>" to "<serialization-b>"
     And they open the file
@@ -31,11 +31,11 @@ Feature:
     And that the elements in "users" section of the file are ordered by element "sequence"
 
     Examples:
-      | serialization-a | serialization-b |
-      | xml             | xml             |
-      | json            | json            |
-      | xml             | json            |
-      | json            | xml             |
+      | input-file | serialization-a | serialization-b |
+      | input.xml  | xml             | xml             |
+      | input.json | json            | json            |
+      | input.xml  | xml             | json            |
+      | input.json | json            | xml             |
 
   @wip
   Scenario Outline: User transforms file without specifying an output format

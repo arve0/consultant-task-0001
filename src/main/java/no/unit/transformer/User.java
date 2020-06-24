@@ -7,10 +7,10 @@ public class User implements Comparable<User> {
 
     public User() {}
 
-    public User(InputPerson person) {
-        id = Integer.parseInt(person.sequence);
-        identity = new Identity(person.name);
-        role = person.role;
+    public User(InputUser user) {
+        id = Integer.parseInt(user.sequence);
+        identity = new Identity(user.name);
+        role = user.role;
     }
 
     @Override

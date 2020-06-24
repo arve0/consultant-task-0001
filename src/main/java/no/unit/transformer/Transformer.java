@@ -26,32 +26,48 @@ public class Transformer {
     @CommandLine.Option(names = { "--output-format" }, paramLabel = "OUTPUT FORMAT", description = "the output-format")
     public FileTypes outputFormat;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private boolean inputDoesHaveRootObject = true;
 
     public void transform() throws IOException {
-        String json = Files.readString(input);
-        JsonNode object = objectMapper.readValue(json, JsonNode.class);
-
-        boolean isObjectWithUsers = object.has("users");
-        JsonNode users = isObjectWithUsers
-                ? object.get("users")
-                : object;
-
-        List<User> transformed = Arrays.asList(objectMapper.treeToValue(users, InputPerson[].class))
+        List<User> users = getInputUsers()
                 .stream()
                 .map(User::new)
                 .sorted()
                 .collect(Collectors.toList());
 
         BufferedWriter outputBuffer = Files.newBufferedWriter(output);
+
+        if (outputFormat == null) {
+            outputFormat = inputFormat;
+        }
+
         ObjectMapper outputMapper = outputFormat.equals(FileTypes.xml)
                 ? new XmlMapper()
-                : objectMapper;
+                : new ObjectMapper();
 
-        if (isObjectWithUsers) {
-            outputMapper.writeValue(outputBuffer, new Users(transformed));
+        if (inputDoesHaveRootObject) {
+            outputMapper.writeValue(outputBuffer, new Users(users));
         } else {
-            outputMapper.writeValue(outputBuffer, transformed);
+            outputMapper.writeValue(outputBuffer, users);
         }
+    }
+
+    private List<InputUser> getInputUsers() throws IOException {
+        String content = Files.readString(input);
+
+        if (inputFormat.equals(FileTypes.xml)) {
+            InputUsers inputUsers = new XmlMapper().readValue(content, InputUsers.class);
+            return inputUsers.users;
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root = objectMapper.readValue(content, JsonNode.class);
+
+        inputDoesHaveRootObject = root.has("users");
+        JsonNode objectWithUsers = inputDoesHaveRootObject
+                ? root.get("users")
+                : root;
+
+        return Arrays.asList(objectMapper.treeToValue(objectWithUsers, InputUser[].class));
     }
 }

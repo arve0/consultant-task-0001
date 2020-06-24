@@ -11,7 +11,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.messages.internal.com.google.common.base.CaseFormat;
 import no.unit.transformer.FileTypes;
-import no.unit.transformer.InputPerson;
+import no.unit.transformer.InputUser;
+import no.unit.transformer.InputUsers;
 import no.unit.transformer.Transformer;
 import no.unit.transformer.User;
 import no.unit.transformer.Users;
@@ -36,6 +37,7 @@ public class StepDefinitions extends TestWiring {
     private JsonNode objectUnderAssertion;
     private String outputContent;
     private Users deserializedUsers;
+    private String inputSerialization = "json";
 
     @Given("^the user has an application \"Transformer\" that has a command line interface$")
     public void theUserHasAnApplicationThatHasACommandLineInterface() {
@@ -65,10 +67,10 @@ public class StepDefinitions extends TestWiring {
         assertEquals(FileTypes.class, getTransformerFlagType(flag));
     }
 
-    @Given("the user has a file {string}")
-    public void theUserHasAFile(String filename) throws URISyntaxException {
+    @Given("the user has a file {string} in {string}")
+    public void theUserHasAFileInSerialization(String filename, String serialization) throws URISyntaxException {
         inputFile = getFileFromResources(filename);
-        assertTrue(Files.exists(inputFile));
+        inputSerialization = serialization;
     }
 
     @Given("the user has an input file that contains an array that contains a single object")
@@ -154,9 +156,10 @@ public class StepDefinitions extends TestWiring {
 
     @And("the data is formatted correctly")
     public void theDataIsFormattedCorrectly() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readValue(Files.readString(inputFile), JsonNode.class);
-        objectMapper.treeToValue(jsonNode.get("users"), InputPerson[].class);
+        ObjectMapper objectMapper = inputFile.toString().endsWith(".xml")
+                ? new XmlMapper()
+                : new ObjectMapper();
+        objectMapper.readValue(Files.readString(inputFile), InputUsers.class);
     }
 
     @When("the user transforms the file from {string} to {string}")
@@ -196,11 +199,6 @@ public class StepDefinitions extends TestWiring {
             assertTrue(user.id > prev);
             prev = user.id;
         }
-    }
-
-    @Given("the user has a (.*) in (.*)")
-    public void theUserHasAFileInSerialization(String filename, String serialization) {
-        throw new PendingException();
     }
 
     @When("they transform the file without specifying the output format flag")
