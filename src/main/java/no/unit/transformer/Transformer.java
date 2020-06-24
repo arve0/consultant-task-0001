@@ -2,6 +2,7 @@ package no.unit.transformer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import picocli.CommandLine;
 
@@ -11,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Transformer {
@@ -27,28 +29,35 @@ public class Transformer {
     public FileTypes outputFormat;
 
     private boolean inputDoesHaveRootObject = true;
+    private String errorMessage = "";
 
     public void transform() throws IOException {
-        List<User> users = getInputUsers()
-                .stream()
-                .map(User::new)
-                .sorted()
-                .collect(Collectors.toList());
+        try {
+            List<User> users = getInputUsers()
+                    .stream()
+                    .map(User::new)
+                    .sorted()
+                    .collect(Collectors.toList());
 
-        BufferedWriter outputBuffer = Files.newBufferedWriter(output);
+            BufferedWriter outputBuffer = Files.newBufferedWriter(output);
 
-        if (outputFormat == null) {
-            outputFormat = inputFormat;
-        }
+            if (outputFormat == null) {
+                outputFormat = inputFormat;
+            }
 
-        ObjectMapper outputMapper = outputFormat.equals(FileTypes.xml)
-                ? new XmlMapper()
-                : new ObjectMapper();
+            ObjectMapper outputMapper = outputFormat.equals(FileTypes.xml)
+                    ? new XmlMapper()
+                    : new ObjectMapper();
 
-        if (inputDoesHaveRootObject) {
-            outputMapper.writeValue(outputBuffer, new Users(users));
-        } else {
-            outputMapper.writeValue(outputBuffer, users);
+            if (inputDoesHaveRootObject) {
+                outputMapper.writeValue(outputBuffer, new Users(users));
+            } else {
+                outputMapper.writeValue(outputBuffer, users);
+            }
+        } catch (MismatchedInputException error) {
+            errorMessage = "Unable to transform input data, unexpected format.";
+        } catch (Exception error) {
+            errorMessage = "Unexpected error: " + error.getMessage();
         }
     }
 
@@ -69,5 +78,13 @@ public class Transformer {
                 : root;
 
         return Arrays.asList(objectMapper.treeToValue(objectWithUsers, InputUser[].class));
+    }
+
+    public Optional<String> getErrorMessage() {
+        if (errorMessage.equals("")) {
+            return Optional.empty();
+        } else {
+            return Optional.of(errorMessage);
+        }
     }
 }

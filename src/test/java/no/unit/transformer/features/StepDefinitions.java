@@ -3,15 +3,14 @@ package no.unit.transformer.features;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.messages.internal.com.google.common.base.CaseFormat;
 import no.unit.transformer.FileTypes;
-import no.unit.transformer.InputUser;
 import no.unit.transformer.InputUsers;
 import no.unit.transformer.Transformer;
 import no.unit.transformer.User;
@@ -22,8 +21,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StepDefinitions extends TestWiring {
@@ -219,16 +220,22 @@ public class StepDefinitions extends TestWiring {
 
     @And("the data is formatted badly")
     public void theDataIsFormattedBadly() {
-        throw new PendingException();
+        assertThrows(UnrecognizedPropertyException.class, () -> {
+            theDataIsFormattedCorrectly();
+        });
     }
 
     @When("the user attempts to transform the file")
-    public void theUserAttemptsToTransformTheFile() {
-        throw new PendingException();
+    public void theUserAttemptsToTransformTheFile() throws IOException {
+        theyTransformTheFileWithoutSpecifyingTheOutputFormatFlag();
     }
 
     @Then("they see an error message telling them that the input file is badly formatted")
-    public void theySeeAnErrorMessageTellingThemThatTheInputFileIsBadlyFormatted() {
-        throw new PendingException();
+    public void theySeeAnErrorMessageTellingThemThatTheInputFileIsBadlyFormatted() throws Exception {
+        Optional<String> errorMessage = transformer.getErrorMessage();
+        assertTrue(errorMessage.isPresent());
+
+        String error = errorMessage.get();
+        assertTrue(error.contains("unexpected format"));
     }
 }

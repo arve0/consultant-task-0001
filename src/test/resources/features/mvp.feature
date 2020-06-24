@@ -50,9 +50,8 @@ Feature:
       | input.xml  | xml           |
       | input.json | json          |
 
-  @wip
   Scenario: User attempts to transform badly formatted file
-    Given the user has a file "badly_formatted.json"
+    Given the user has a file "badly_formatted.json" in "json"
     And the data is formatted badly
     When the user attempts to transform the file
     Then they see an error message telling them that the input file is badly formatted
