@@ -26,6 +26,40 @@ I've noted flaws, ideas and thoughts underway, and would gladly discuss them:
 - The commit log have scattered timestamps, as I've been working on other
   tasks in between.
 - `git rebase -i --exec "./gradlew check" master`
+- I like the setup, finding mistakes automatically increases the code quality.
+
+> What can you do so that someone else can take over this code?
+
+I try to follow these principles:
+
+- ALWAYS refer to a case number (JIRA, github, etc) in commit log. This helps the
+  next developer to find and understand the background and context for why the 
+  code was written.
+- Explain background in commit message, if something took a while to understand.
+  Often, this is information is domain specific, like "Why does this transformer
+  support multiple input formats?" I prefer having this information in the commit
+  message over in the code as comments, as when you know the business domain you
+  can read through the code with better flow. This information is often detailed,
+  technical and tightly coupled to the current implementation, so it does not make 
+  sense in the issue tracking platform.
+- Add steps to setup and run project to README, script, etc. A few examples can
+  save days and hours when new, and "jumping through the correct hoops" is
+  necessary to get the project running.
+- Name and structure things by business domain. Don't be afraid to rename, use the
+  editor and compiler to make sure it does not break things. Do _not_ rename where
+  you have weak coupling (HTTP, JSON, etc) without having versioning / contracts / 
+  integration tests.
+- It should be easy to find the relevant code when starting "in" the application.
+  For example, take a web page. The URL should reflect the name of the code, so
+  that one can lookup the HTTP-handler and work your way through the layers.
+
+> Clever is good, but understandable is better
+
+This is a good point, and I've been thinking a lot about how to make stuff
+understandable when teaching.
+
+A good example, I think, is the functional approach. Could you expect developers
+to understand filter, map and reduce?
 
 ## Run
 ```bash
